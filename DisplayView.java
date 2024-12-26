@@ -67,7 +67,7 @@ public class DisplayView extends JPanel {
             }
         });
         updateButtonPosition();
-    }
+    } //end constructor
 
     private void updateButtonPosition() {
         int panelWidth = getWidth();
