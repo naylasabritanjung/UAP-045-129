@@ -1,8 +1,10 @@
-import javax.swing.*;
-import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import javax.swing.JFrame;
 
 public class WeatherCheckController {
     private final WeatherCheckView check;

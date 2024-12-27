@@ -146,6 +146,10 @@ public class DisplayView extends JPanel {
             WeatherCheckView.createAndShowFrame(model); // Menampilkan WeatherCheckView
         });
 
+        button2.addActionListener(e -> {
+            new WeatherMonitoring().setVisible(true);
+        });
+
         button3.addActionListener(e -> {
             new History1().setVisible(true);  // open history1
         });

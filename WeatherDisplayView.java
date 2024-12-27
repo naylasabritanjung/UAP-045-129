@@ -5,13 +5,17 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.geom.RoundRectangle2D;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import org.json.simple.JSONObject;
@@ -27,8 +31,11 @@ public class WeatherDisplayView extends JPanel {
     private JLabel icon;
     private JLabel humidityIcon;
     private JLabel windspeedIcon;
+    private JButton tambah;
+    private JButton back;
 
     public WeatherDisplayView(DisplayModel model) {
+
         this.model = model;
         this.weatherInfoLabel = new JLabel("", SwingConstants.CENTER);
         this.icon = new JLabel("");
@@ -41,7 +48,33 @@ public class WeatherDisplayView extends JPanel {
         this.windspeedIcon = new JLabel(new ImageIcon("img/windspeed.png"));
         setLayout(null);
 
-        icon.setBounds(100, 100, 300, 300);
+        icon.setBounds(290, 120, 300, 300);
+
+        tambah = new JButton("Tambah");
+        tambah.setBounds(720, 580, 130, 40);
+        tambah.setFont(new Font("Verdana", Font.BOLD, 15));
+        tambah.setContentAreaFilled(false);
+        tambah.setFocusable(false);
+        tambah.setBorder(BorderFactory.createEmptyBorder());
+        add(tambah);
+
+        back = new JButton("Kembali");
+        back.setBounds(50, 580, 130, 40);
+        back.setFont(new Font("Verdana", Font.BOLD, 15));
+        back.setContentAreaFilled(false);
+        back.setFocusable(false);
+           
+        back.addActionListener(e -> {
+            // Menutup jendela saat ini
+            SwingUtilities.getWindowAncestor(this).dispose();
+        
+            // Membuat dan menampilkan DisplayView
+            DisplayView displayView = new DisplayView(new DisplayModel());
+            displayView.openNewPanel(new DisplayModel());
+            displayView.setVisible(true);
+        });        
+        
+        add(back);
 
         locationLabel.setFont(new Font("Verdana", Font.BOLD, 30));
         locationLabel.setForeground(Color.orange);
@@ -58,24 +91,34 @@ public class WeatherDisplayView extends JPanel {
         windspeedLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
         windspeedLabel.setForeground(Color.white);
 
-        humidityLabel.setBounds(100, 350, 30, 30);
-        windspeedLabel.setBounds(150, 350, 30, 30);
+        humidityLabel.setBounds(200, 350, 30, 30);
+        windspeedLabel.setBounds(700, 350, 30, 30);
 
         add(locationLabel);
         add(temperatureLabel);
         add(conditionLabel);
-        add(humidityLabel);
-        add(windspeedLabel);
         add(weatherInfoLabel, BorderLayout.SOUTH);
         add(icon);
-        add(humidityIcon);
-        add(windspeedIcon);
 
         Timer timer = new Timer(50, e -> {
             model.updateAngle(0.03f);
             repaint();
         });
         timer.start();
+    }
+
+    @Override
+    protected void paintBorder(Graphics g) {
+        super.paintBorder(g);
+        Graphics2D g2d = (Graphics2D) g;
+        GradientPaint gradient = new GradientPaint(0, 0, Color.ORANGE, 1, getHeight(), Color.ORANGE.brighter());
+        g2d.setPaint(gradient);
+
+        RoundRectangle2D.Float roundButtonCari = new RoundRectangle2D.Float(tambah.getX(), tambah.getY(), tambah.getWidth(), tambah.getHeight(), 20, 20);
+        g2d.fill(roundButtonCari);
+
+        RoundRectangle2D.Float roundButtonBack = new RoundRectangle2D.Float(back.getX(), back.getY(), back.getWidth(), back.getHeight(), 20, 20);
+        g2d.fill(roundButtonBack);
     }
 
     @Override
@@ -103,7 +146,7 @@ public class WeatherDisplayView extends JPanel {
         temperatureLabel.setBounds((width - temperatureLabel.getPreferredSize().width) / 2, 320, temperatureLabel.getPreferredSize().width, 200);
         conditionLabel.setBounds((width - conditionLabel.getPreferredSize().width) / 2, 440, conditionLabel.getPreferredSize().width, 50); // Tempatkan conditionLabel di bawah temperatureLabel
         humidityLabel.setBounds((width / 2 - humidityLabel.getPreferredSize().width) / 2, 500, humidityLabel.getPreferredSize().width, 50); // Tempatkan humidityLabel di bawah conditionLabel
-        windspeedLabel.setBounds((width / 2 + 400) / 2, 500, windspeedLabel.getPreferredSize().width, 50); // Tempatkan windspeedLabel di sebelah humidityLabel
+        windspeedLabel.setBounds((width / 2 + 600) / 2, 500, windspeedLabel.getPreferredSize().width, 50); // Tempatkan windspeedLabel di sebelah humidityLabel
 
         // Set positions for the icons
         humidityIcon.setBounds(humidityLabel.getX() - 50, humidityLabel.getY() - 20, 30, 30); // Icon to the left of humidity
@@ -148,7 +191,7 @@ public class WeatherDisplayView extends JPanel {
                 icon = new ImageIcon("img/cloudy.png");
                 break;
             case "clear":
-                icon = new ImageIcon("img/weather.png");
+                icon = new ImageIcon("img/clear.png");
                 break;
             case "rain":
                 icon = new ImageIcon("img/rainy.png");
