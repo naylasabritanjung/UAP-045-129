@@ -10,7 +10,6 @@ import java.awt.RenderingHints;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.IOException;
-
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -133,13 +132,10 @@ public class DisplayView extends JPanel {
 
         
         JButton button1 = createCustomButton("Cek Cuaca", new ImageIcon("img/awan2.png"));
-        button1.setBounds(100, 400, 200, 60); 
+        button1.setBounds(230, 400, 200, 60); 
 
         JButton button2 = createCustomButton("Monitoring", new ImageIcon("img/eye icon_4184857.png"));
-        button2.setBounds(320, 400, 200, 60); 
-
-        JButton button3 = createCustomButton("History", new ImageIcon("img/loop.png"));
-        button3.setBounds(540, 400, 200, 60); 
+        button2.setBounds(450, 400, 200, 60); 
 
 
         button1.addActionListener(e -> {
@@ -150,15 +146,9 @@ public class DisplayView extends JPanel {
             new WeatherMonitoring().setVisible(true);
         });
 
-        button3.addActionListener(e -> {
-            new History1().setVisible(true);  // open history1
-        });
-
-
 
         newPanel.add(button1);
         newPanel.add(button2);
-        newPanel.add(button3);
 
         frame.getContentPane().removeAll();
         frame.add(newPanel, BorderLayout.CENTER);

@@ -1,10 +1,17 @@
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JFrame;
+// exception untuk lokasi yang tidak ditemukan
+class LocationNotFoundException extends Exception {
+    public LocationNotFoundException(String message) {
+        super(message);
+    }
+}
 
 public class WeatherCheckController {
     private final WeatherCheckView check;
@@ -15,10 +22,14 @@ public class WeatherCheckController {
         check.getCari().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String locationName = check.getTextField().getText();
-                JSONArray locationData = FetchApi.getLocationData(locationName);
+                try {
+                    String locationName = check.getTextField().getText();
+                    JSONArray locationData = FetchApi.getLocationData(locationName);
 
-                if (locationData != null && locationData.size() > 0) {
+                    if (locationData == null || locationData.isEmpty()) {
+                        throw new LocationNotFoundException("Soriye lokasi gada");
+                    }
+
                     JSONObject location = (JSONObject) locationData.get(0);
                     String cityName = (String) location.get("name");
 
@@ -37,30 +48,30 @@ public class WeatherCheckController {
                                 weatherData.get("humidity"),
                                 weatherData.get("windspeed"));
 
-                        // Cetak pesan cuaca ke konsol
+                      
                         System.out.println(message);
 
-                        // Tutup frame saat ini
+                        
                         JFrame currentFrame = (JFrame) check.getTopLevelAncestor();
                         if (currentFrame != null) {
                             currentFrame.dispose();
                         }
 
-                        // Create a new DisplayModel instance
+                        
                         DisplayModel model = new DisplayModel();
 
-                        // Create a new WeatherDisplayView instance with the model
+                        
                         WeatherDisplayView displayView = new WeatherDisplayView(model);
 
-                        // Create a new JFrame to display the WeatherDisplayView
+                        
                         JFrame weatherFrame = new JFrame("Weather Details");
                         weatherFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                         weatherFrame.setSize(900, 700);
 
-                        // Add WeatherDisplayView to the frame
+                       
                         weatherFrame.add(displayView);
 
-                        // Create JSONObject to pass weather data
+                     
                         JSONObject weatherInfo = new JSONObject();
                         weatherInfo.put("location_name", cityName);
                         weatherInfo.put("latitude", latitude);
@@ -70,15 +81,24 @@ public class WeatherCheckController {
                         weatherInfo.put("humidity", weatherData.get("humidity"));
                         weatherInfo.put("windspeed", weatherData.get("windspeed"));
 
-                        // Update the display with weather info
+                       
                         displayView.updateWeatherInfo(weatherInfo);
 
-                        // Show the new frame
+                       
                         weatherFrame.setLocationRelativeTo(null);
                         weatherFrame.setVisible(true);
                     }
-                } else {
-                    System.out.println("Location not found.");
+                } catch (LocationNotFoundException ex) {
+                   
+                    JOptionPane.showMessageDialog(
+                            check,
+                            ex.getMessage(),
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                } catch (Exception ex) {
+                    
+                    ex.printStackTrace();
                 }
             }
         });

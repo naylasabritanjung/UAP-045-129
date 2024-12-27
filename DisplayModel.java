@@ -29,4 +29,8 @@ public class DisplayModel {
             angle = 0;
         }
     }
+
+    boolean isCityAvailable(String city) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

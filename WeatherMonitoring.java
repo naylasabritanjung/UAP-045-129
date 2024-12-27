@@ -1,21 +1,28 @@
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 
 public class WeatherMonitoring extends JFrame {
 
     public WeatherMonitoring() {
-        
+
         setTitle("Monitoring");
 
         setSize(900, 700);
@@ -38,12 +45,13 @@ public class WeatherMonitoring extends JFrame {
         private String fullText = "Tak perlu mengingat sendiri, kami simpan semuanya. Lihat riwayat cuaca di sini!";
         private StringBuilder currentText = new StringBuilder();
         private int textIndex = 0;
-        private JButton backButton;  // Deklarasi tombol
+        private JButton backButton;
+        private static JTable weatherTable;
 
         public MonitoringPanel() {
             setLayout(null);
 
-            backButton = new JButton("Back") {
+            backButton = new JButton("Kembali") {
 
                 @Override
                 protected void paintComponent(Graphics g) {
@@ -56,28 +64,27 @@ public class WeatherMonitoring extends JFrame {
                     g2d.setPaint(gradient);
                     g2d.fillRoundRect(0, 0, width, height, 50, 50);
 
-                    ImageIcon icon = new ImageIcon("img/home icon.png"); 
-                    g2d.drawImage(icon.getImage(), 10, 10, 30, 30, this);  
+                    ImageIcon icon = new ImageIcon("img/home icon.png");
+                    g2d.drawImage(icon.getImage(), 5, 10, 30, 30, this);
 
                     g2d.setColor(Color.DARK_GRAY);
-                    g2d.setFont(new Font("Verdana", Font.BOLD, 20));
+                    g2d.setFont(new Font("Verdana", Font.BOLD, 15));
                     String text = getText();
                     int textWidth = g2d.getFontMetrics().stringWidth(text);
                     int textHeight = g2d.getFontMetrics().getAscent();
-                    int x = (width - textWidth) / 2 + 5 ; 
+                    int x = (width - textWidth) / 2 + 5;
                     int y = (height + textHeight) / 2;
 
                     g2d.drawString(text, x, y);
                 }
             };
 
-            //posisi button
-            backButton.setBounds(80, 550, 130, 50);
+            // Posisi button
+            backButton.setBounds(50, 550, 130, 50);
             backButton.setContentAreaFilled(false);
             backButton.setFocusPainted(false);
             backButton.setBorderPainted(false);
-            backButton.setVisible(false);  // sembunyikan tombol 
-
+            backButton.setVisible(false);
 
             backButton.addActionListener(e -> {
                 SwingUtilities.getWindowAncestor(this).dispose();
@@ -86,25 +93,56 @@ public class WeatherMonitoring extends JFrame {
 
             add(backButton);
 
-           
+
+            String[] columnNames = {"No", "Nama Lokasi", "Temperatur", "Cuaca", "Waktu"};
+            DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
+            JTable weatherTable = new JTable(tableModel);
+            weatherTable.setFont(new Font("Verdana", Font.PLAIN, 12));
+            weatherTable.setRowHeight(25);
+
+            JTableHeader header = weatherTable.getTableHeader();
+            header.setDefaultRenderer(new DefaultTableCellRenderer() {
+                @Override
+                public Component getTableCellRendererComponent(JTable table, Object value,
+                        boolean isSelected, boolean hasFocus, int row, int column) {
+                    JLabel label = new JLabel(value.toString());
+                    label.setFont(new Font("Verdana", Font.BOLD, 14));
+                    label.setBackground(new Color(135, 206, 250));
+                    label.setForeground(Color.BLACK);
+                    label.setOpaque(true);
+                    label.setHorizontalAlignment(SwingConstants.CENTER);
+                    return label;
+                }
+            });
+
+            JScrollPane tableScrollPane = new JScrollPane(weatherTable);
+            tableScrollPane.setBounds(50, 150, 800, 350);
+
+            add(tableScrollPane);
+
             timer = new Timer(20, e -> {
                 angle += Math.PI / 180;
                 repaint();
             });
             timer.start();
 
-           
             textTimer = new Timer(40, e -> {
                 if (textIndex < fullText.length()) {
+                    backButton.setVisible(true);
                     currentText.append(fullText.charAt(textIndex));
                     textIndex++;
                     repaint();
                 } else {
                     textTimer.stop();
-                    backButton.setVisible(true);  // nampilkan tombol 
                 }
             });
             textTimer.start();
+        }
+        
+        public static void addDataToTable(String location, String condition, double temperature, String time) {
+            DefaultTableModel model = (DefaultTableModel) weatherTable.getModel();
+            Object[] rowData = {location, condition, temperature, time};
+            model.addRow(rowData);
         }
 
         @Override
