@@ -1,6 +1,5 @@
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.Timer;
 
 public class DisplayController {
@@ -26,6 +25,7 @@ public class DisplayController {
             public void actionPerformed(ActionEvent e) {
                 System.out.println("tombol berhasil diklik");
                 model.updateAngle(0.1f);
+                view.openNewPanel(model); //Ke Frame 2
                 view.repaint();
             }
         });
