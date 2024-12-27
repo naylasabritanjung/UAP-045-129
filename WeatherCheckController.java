@@ -13,27 +13,23 @@ public class WeatherCheckController {
         check.getCari().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String locationName = check.getTextField().getText(); // Ambil nama lokasi dari JTextField
-                JSONArray locationData = FetchApi.getLocationData(locationName); // Panggil API untuk mendapatkan data lokasi
+                String locationName = check.getTextField().getText();
+                JSONArray locationData = FetchApi.getLocationData(locationName);
 
                 if (locationData != null && locationData.size() > 0) {
-                    // Ambil data lokasi pertama
                     JSONObject location = (JSONObject) locationData.get(0);
-                    String cityName = (String) location.get("name"); // Ambil nama kota
+                    String cityName = (String) location.get("name");
 
-                    // Ambil koordinat lokasi
                     double latitude = (double) location.get("latitude");
                     double longitude = (double) location.get("longitude");
 
-                    // Dapatkan data cuaca berdasarkan koordinat lokasi
                     JSONObject weatherData = FetchApi.getWeatherData(cityName);
 
                     if (weatherData != null) {
-                        // Format pesan untuk ditampilkan
                         String message = String.format("Location: %s\nLatitude: %.4f\nLongitude: %.4f\nTemperature: %.2f°C\nWeather Condition: %s\nHumidity: %d%%\nWindspeed: %.2f m/s",
-                                cityName,  // Menampilkan nama kota
-                                latitude,  // Menampilkan latitude
-                                longitude, // Menampilkan longitude
+                                cityName,
+                                latitude,
+                                longitude,
                                 weatherData.get("temperature"),
                                 weatherData.get("weather_condition"),
                                 weatherData.get("humidity"),
@@ -41,6 +37,12 @@ public class WeatherCheckController {
 
                         // Cetak pesan cuaca ke konsol
                         System.out.println(message);
+
+                        // Tutup frame saat ini
+                        JFrame currentFrame = (JFrame) check.getTopLevelAncestor();
+                        if (currentFrame != null) {
+                            currentFrame.dispose();
+                        }
 
                         // Create a new DisplayModel instance
                         DisplayModel model = new DisplayModel();
@@ -51,7 +53,7 @@ public class WeatherCheckController {
                         // Create a new JFrame to display the WeatherDisplayView
                         JFrame weatherFrame = new JFrame("Weather Details");
                         weatherFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                        weatherFrame.setSize(500, 700);
+                        weatherFrame.setSize(900, 700);
 
                         // Add WeatherDisplayView to the frame
                         weatherFrame.add(displayView);
@@ -89,7 +91,7 @@ public class WeatherCheckController {
 
                 JFrame frame = new JFrame("Weather Monitoring App");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setSize(500, 700);
+                frame.setSize(900, 700);
                 frame.add(view);
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);

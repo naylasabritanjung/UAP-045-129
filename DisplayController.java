@@ -1,6 +1,6 @@
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.JFrame;
+
 import javax.swing.Timer;
 
 public class DisplayController {
@@ -24,14 +24,10 @@ public class DisplayController {
         view.getButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JFrame currentFrame = (JFrame) view.getTopLevelAncestor();
-
-                DisplayModel newModel = new DisplayModel();
-                WeatherCheckView.createAndShowFrame(newModel);
-
-                if (currentFrame != null) {
-                    currentFrame.dispose();
-                }
+                model.updateAngle(0.1f);
+                view.openNewPanel(model);
+                view.repaint();
+                
             }
         });
     }

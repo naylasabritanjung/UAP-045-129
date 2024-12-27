@@ -1,5 +1,19 @@
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.Timer;
+
 import org.json.simple.JSONObject;
 
 public class WeatherDisplayView extends JPanel {
@@ -20,11 +34,11 @@ public class WeatherDisplayView extends JPanel {
         this.icon = new JLabel("");
         this.locationLabel = new JLabel("", SwingConstants.CENTER);
         this.temperatureLabel = new JLabel("", SwingConstants.CENTER);
-        this.conditionLabel = new JLabel("", SwingConstants.CENTER); // Inisialisasi conditionLabel
-        this.humidityLabel = new JLabel("", SwingConstants.CENTER); // Inisialisasi humidityLabel
-        this.windspeedLabel = new JLabel("", SwingConstants.CENTER); // Inisialisasi windspeedLabel
-        this.humidityIcon = new JLabel(new ImageIcon("img/humidity.png")); // Icon for humidity
-        this.windspeedIcon = new JLabel(new ImageIcon("img/windspeed.png")); // Icon for windspeed
+        this.conditionLabel = new JLabel("", SwingConstants.CENTER);
+        this.humidityLabel = new JLabel("", SwingConstants.CENTER);
+        this.windspeedLabel = new JLabel("", SwingConstants.CENTER);
+        this.humidityIcon = new JLabel(new ImageIcon("img/humidity.png"));
+        this.windspeedIcon = new JLabel(new ImageIcon("img/windspeed.png"));
         setLayout(null);
 
         icon.setBounds(100, 100, 300, 300);
@@ -35,13 +49,13 @@ public class WeatherDisplayView extends JPanel {
         temperatureLabel.setFont(new Font("Verdana", Font.BOLD, 60));
         temperatureLabel.setForeground(Color.orange);
 
-        conditionLabel.setFont(new Font("Verdana", Font.BOLD, 26)); // Atur font untuk conditionLabel
+        conditionLabel.setFont(new Font("Verdana", Font.BOLD, 26));
         conditionLabel.setForeground(Color.white);
 
-        humidityLabel.setFont(new Font("Verdana", Font.PLAIN, 18)); // Atur font untuk humidityLabel
+        humidityLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
         humidityLabel.setForeground(Color.white);
 
-        windspeedLabel.setFont(new Font("Verdana", Font.PLAIN, 18)); // Atur font untuk windspeedLabel
+        windspeedLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
         windspeedLabel.setForeground(Color.white);
 
         humidityLabel.setBounds(100, 350, 30, 30);
@@ -49,13 +63,13 @@ public class WeatherDisplayView extends JPanel {
 
         add(locationLabel);
         add(temperatureLabel);
-        add(conditionLabel); // Tambahkan conditionLabel ke panel
-        add(humidityLabel); // Tambahkan humidityLabel ke panel
-        add(windspeedLabel); // Tambahkan windspeedLabel ke panel
+        add(conditionLabel);
+        add(humidityLabel);
+        add(windspeedLabel);
         add(weatherInfoLabel, BorderLayout.SOUTH);
         add(icon);
-        add(humidityIcon); // Add humidity icon
-        add(windspeedIcon); // Add windspeed icon
+        add(humidityIcon);
+        add(windspeedIcon);
 
         Timer timer = new Timer(50, e -> {
             model.updateAngle(0.03f);
@@ -92,8 +106,8 @@ public class WeatherDisplayView extends JPanel {
         windspeedLabel.setBounds((width / 2 + 400) / 2, 500, windspeedLabel.getPreferredSize().width, 50); // Tempatkan windspeedLabel di sebelah humidityLabel
 
         // Set positions for the icons
-        humidityIcon.setBounds(humidityLabel.getX() - 40, humidityLabel.getY(), 30, 30); // Icon to the left of humidity
-        windspeedIcon.setBounds(windspeedLabel.getX() - 40, windspeedLabel.getY(), 30, 30); // Icon to the left of windspeed
+        humidityIcon.setBounds(humidityLabel.getX() - 50, humidityLabel.getY() - 20, 30, 30); // Icon to the left of humidity
+        windspeedIcon.setBounds(windspeedLabel.getX() - 50, windspeedLabel.getY() - 20, 30, 30); // Icon to the left of windspeed
     }
 
     public void updateWeatherInfo(JSONObject weatherData) {
@@ -146,9 +160,9 @@ public class WeatherDisplayView extends JPanel {
                 new JOptionPane("Nama kota yang anda cari tidak ditemukan!");
                 break;
         }
-        int iconWidth = 300; // Set desired width
-        int iconHeight = 300; // Set desired height
-        Image img = icon.getImage(); // Get the Image from the ImageIcon
+        int iconWidth = 300;
+        int iconHeight = 300;
+        Image img = icon.getImage();
         Image scaledImg = img.getScaledInstance(iconWidth, iconHeight, Image.SCALE_SMOOTH); // Resize the image
         return new ImageIcon(scaledImg);
     }
@@ -156,7 +170,7 @@ public class WeatherDisplayView extends JPanel {
     public static void createAndShowFrame(DisplayModel model) {
         JFrame frame = new JFrame("Weather Check");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(500, 700);
+        frame.setSize(900, 700);
 
         WeatherDisplayView weatherDisplayView = new WeatherDisplayView(model);
         frame.add(weatherDisplayView);

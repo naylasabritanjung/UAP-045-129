@@ -8,7 +8,7 @@ public class DisplayMain {
 
         JFrame frame = new JFrame("Weather Monitoring App");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(500, 700);
+        frame.setSize(900, 700);
         frame.add(view);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);

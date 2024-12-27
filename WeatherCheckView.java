@@ -1,6 +1,17 @@
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.geom.RoundRectangle2D;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 public class WeatherCheckView extends JPanel {
     private final DisplayModel model;
@@ -12,13 +23,13 @@ public class WeatherCheckView extends JPanel {
         this.model = model;
         this.textField = new JTextField(20);
         setLayout(null);
-        textField.setBounds(50, 280, 380, 40);
+        textField.setBounds(150, 280, 580, 50);
         textField.setFont(new Font("Verdana", Font.PLAIN, 15));
         textField.setBorder(BorderFactory.createEmptyBorder());
         add(textField);
 
         cari = new JButton("Cari");
-        cari.setBounds(350, 340, 80, 40);
+        cari.setBounds(650, 350, 80, 40);
         cari.setFont(new Font("Verdana", Font.BOLD, 15));
         cari.setContentAreaFilled(false);
         cari.setFocusable(false);
@@ -26,12 +37,23 @@ public class WeatherCheckView extends JPanel {
         add(cari);
 
         back = new JButton("Kembali");
-        back.setBounds(50, 340, 100, 40);
+        back.setBounds(150, 350, 130, 40);
         back.setFont(new Font("Verdana", Font.BOLD, 15));
         back.setContentAreaFilled(false);
         back.setFocusable(false);
-        back.setBorder(BorderFactory.createEmptyBorder());
+           
+        back.addActionListener(e -> {
+            // Menutup jendela saat ini
+            SwingUtilities.getWindowAncestor(this).dispose();
+        
+            // Membuat dan menampilkan DisplayView
+            DisplayView displayView = new DisplayView(new DisplayModel());
+            displayView.openNewPanel(new DisplayModel());
+            displayView.setVisible(true);
+        });        
+        
         add(back);
+
 
         Timer timer = new Timer(50, e -> {
             model.updateAngle(0.03f);
@@ -58,13 +80,11 @@ public class WeatherCheckView extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
         frameGradasi(g2d);
 
-        // Menampilkan teks
-        int initialY = 200;
-        int nextY = teksTengah(g2d, "Rencanakan perjalanan Anda!", initialY, Color.ORANGE, 20);
-        teksTengah(g2d, "Cari tahu apakah matahari bersinar di kota Anda.", nextY + 10, Color.WHITE, 14);
+        int initialY = 150;
+        int nextY = teksTengah(g2d, "Rencanakan perjalanan Anda!", initialY, Color.ORANGE, 30);
+        teksTengah(g2d, "Cari tahu apakah matahari bersinar di kota Anda.", nextY + 10, Color.WHITE, 20);
 
-        // Gambar input field melengkung
-        g2d.setColor(new Color(255, 255, 255, 150)); // Warna transparan putih untuk input field
+        g2d.setColor(new Color(255, 255, 255, 150));
         RoundRectangle2D.Float roundTextField = new RoundRectangle2D.Float(textField.getX(), textField.getY(), textField.getWidth(), textField.getHeight(), 15, 15);
         g2d.fill(roundTextField);
     }
@@ -116,7 +136,7 @@ public class WeatherCheckView extends JPanel {
     public static void createAndShowFrame(DisplayModel model) {
         JFrame frame = new JFrame("Weather Check");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(500, 700);
+        frame.setSize(900, 700);
 
         WeatherCheckView weatherCheckView = new WeatherCheckView(model);
         frame.add(weatherCheckView);
