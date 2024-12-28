@@ -74,24 +74,19 @@ public class WeatherCheckController {
                 throw new LocationNotFoundException("Lokasi tidak ditemukan");
             }
 
-            // Mengambil detail lokasi dari respons API
             JSONObject location = (JSONObject) locationData.get(0);
             String cityName = (String) location.get("name");
             double latitude = (double) location.get("latitude");
             double longitude = (double) location.get("longitude");
 
-            // Mengambil data cuaca untuk lokasi
             JSONObject weatherData = FetchApi.getWeatherData(cityName);
 
-            // Memeriksa jika data cuaca tersedia
             if (weatherData == null) {
                 throw new Exception("Data cuaca tidak ditemukan untuk lokasi ini.");
             }
 
-            // Menampilkan detail cuaca
             displayWeatherDetails(cityName, latitude, longitude, weatherData);
         } catch (LocationNotFoundException ex) {
-            // Menampilkan pesan kesalahan untuk lokasi yang tidak ditemukan
             JOptionPane.showMessageDialog(
                     check,
                     ex.getMessage(),
@@ -99,7 +94,6 @@ public class WeatherCheckController {
                     JOptionPane.ERROR_MESSAGE
             );
         } catch (IllegalArgumentException ex) {
-            // Menampilkan pesan peringatan untuk input yang tidak valid
             JOptionPane.showMessageDialog(
                     check,
                     ex.getMessage(),
@@ -121,10 +115,8 @@ public class WeatherCheckController {
      * @param weatherData data cuaca untuk lokasi tersebut.
      */
     private void displayWeatherDetails(String cityName, double latitude, double longitude, JSONObject weatherData) {
-        // Membuat tampilan baru WeatherDisplayView untuk menampilkan informasi cuaca
         WeatherDisplayView displayView = new WeatherDisplayView(new DisplayModel());
 
-        // Membuat dan mengonfigurasi JFrame baru untuk menampilkan informasi cuaca
         JFrame weatherFrame = new JFrame("Weather Details");
         weatherFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         weatherFrame.setSize(900, 700);
@@ -132,7 +124,6 @@ public class WeatherCheckController {
         weatherFrame.setLocationRelativeTo(null);
         weatherFrame.setVisible(true);
 
-        // Membuat objek JSON untuk menyimpan informasi cuaca
         JSONObject weatherInfo = new JSONObject();
         weatherInfo.put("location_name", cityName);
         weatherInfo.put("latitude", latitude);
