@@ -10,7 +10,6 @@ import java.awt.RenderingHints;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.IOException;
-
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -91,24 +90,24 @@ public class DisplayView extends JPanel {
         return button;
     }
 
-    //frame 
+    //frame
     public void openNewPanel(DisplayModel model) {
         JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
         if (frame == null) return;
-        
+
         JPanel newPanel = new JPanel() {
             private String fullText = "Langit punya cerita, dan kami akan menyampaikannya! ";
             private StringBuilder displayedText = new StringBuilder();
             private Timer typingTimer;
-              
+
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2d = (Graphics2D) g;
-                
+
                 frameGradasi(g2d);
                 int pccGambar = ikonCuaca(g2d, image, 30);
-                
+
                 teksTengah(g2d, displayedText.toString(), 330, Color.white, 15);
             }
 
@@ -127,19 +126,16 @@ public class DisplayView extends JPanel {
                 typingTimer.start();
             }
         };
-        
+
 
         newPanel.setLayout(null); //kustom posisi
 
-        
+
         JButton button1 = createCustomButton("Cek Cuaca", new ImageIcon("img/awan2.png"));
-        button1.setBounds(100, 400, 200, 60); 
+        button1.setBounds(230, 400, 200, 60);
 
         JButton button2 = createCustomButton("Monitoring", new ImageIcon("img/eye icon_4184857.png"));
-        button2.setBounds(320, 400, 200, 60); 
-
-        JButton button3 = createCustomButton("History", new ImageIcon("img/loop.png"));
-        button3.setBounds(540, 400, 200, 60); 
+        button2.setBounds(450, 400, 200, 60);
 
 
         button1.addActionListener(e -> {
@@ -150,15 +146,9 @@ public class DisplayView extends JPanel {
             new WeatherMonitoring().setVisible(true);
         });
 
-        button3.addActionListener(e -> {
-            new History1().setVisible(true);  // open history1
-        });
-
-
 
         newPanel.add(button1);
         newPanel.add(button2);
-        newPanel.add(button3);
 
         frame.getContentPane().removeAll();
         frame.add(newPanel, BorderLayout.CENTER);
@@ -168,17 +158,17 @@ public class DisplayView extends JPanel {
 
     private JButton createCustomButton(String text, ImageIcon icon) {
 
-        Image image = icon.getImage(); 
+        Image image = icon.getImage();
         Image scaledImage = image.getScaledInstance(50, 50, Image.SCALE_SMOOTH); // ukuran gambar 
         icon = new ImageIcon(scaledImage);
-        
+
         JButton button = new JButton(text) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g;
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                
+
                 GradientPaint gradient = new GradientPaint(0, 0, Color.YELLOW, getWidth(), 0, Color.ORANGE);
                 g2.setPaint(gradient);
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30); // bagian Oval 
@@ -191,11 +181,11 @@ public class DisplayView extends JPanel {
         button.setContentAreaFilled(false);
         button.setBorderPainted(false);
         button.setFocusPainted(false);
-        button.setHorizontalAlignment(SwingConstants.LEFT); 
-        button.setIcon(icon); 
+        button.setHorizontalAlignment(SwingConstants.LEFT);
+        button.setIcon(icon);
         button.setIconTextGap(10); // Jarak teks & ikon
-        button.setForeground(Color.BLACK); 
-        button.setFont(new Font("Verdana", Font.BOLD, 15)); 
+        button.setForeground(Color.BLACK);
+        button.setFont(new Font("Verdana", Font.BOLD, 15));
 
         return button;
     }

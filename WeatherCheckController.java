@@ -1,10 +1,17 @@
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JFrame;
+// exception untuk lokasi yang tidak ditemukan
+class LocationNotFoundException extends Exception {
+    public LocationNotFoundException(String message) {
+        super(message);
+    }
+}
 
 public class WeatherCheckController {
     private final WeatherCheckView check;
@@ -12,96 +19,123 @@ public class WeatherCheckController {
     public WeatherCheckController(WeatherCheckView check) {
         this.check = check;
 
-        check.getCari().addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String locationName = check.getTextField().getText();
-                JSONArray locationData = FetchApi.getLocationData(locationName);
+        check.getCari().addActionListener(e -> handleSearch());
+        check.getBack().addActionListener(e -> handleBack());
+    }
 
-                if (locationData != null && locationData.size() > 0) {
-                    JSONObject location = (JSONObject) locationData.get(0);
-                    String cityName = (String) location.get("name");
+    private void handleSearch() {
+        try {
+            String locationName = check.getTextField().getText();
 
-                    double latitude = (double) location.get("latitude");
-                    double longitude = (double) location.get("longitude");
-
-                    JSONObject weatherData = FetchApi.getWeatherData(cityName);
-
-                    if (weatherData != null) {
-                        String message = String.format("Location: %s\nLatitude: %.4f\nLongitude: %.4f\nTemperature: %.2f°C\nWeather Condition: %s\nHumidity: %d%%\nWindspeed: %.2f m/s",
-                                cityName,
-                                latitude,
-                                longitude,
-                                weatherData.get("temperature"),
-                                weatherData.get("weather_condition"),
-                                weatherData.get("humidity"),
-                                weatherData.get("windspeed"));
-
-                        // Cetak pesan cuaca ke konsol
-                        System.out.println(message);
-
-                        // Tutup frame saat ini
-                        JFrame currentFrame = (JFrame) check.getTopLevelAncestor();
-                        if (currentFrame != null) {
-                            currentFrame.dispose();
-                        }
-
-                        // Create a new DisplayModel instance
-                        DisplayModel model = new DisplayModel();
-
-                        // Create a new WeatherDisplayView instance with the model
-                        WeatherDisplayView displayView = new WeatherDisplayView(model);
-
-                        // Create a new JFrame to display the WeatherDisplayView
-                        JFrame weatherFrame = new JFrame("Weather Details");
-                        weatherFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                        weatherFrame.setSize(900, 700);
-
-                        // Add WeatherDisplayView to the frame
-                        weatherFrame.add(displayView);
-
-                        // Create JSONObject to pass weather data
-                        JSONObject weatherInfo = new JSONObject();
-                        weatherInfo.put("location_name", cityName);
-                        weatherInfo.put("latitude", latitude);
-                        weatherInfo.put("longitude", longitude);
-                        weatherInfo.put("temperature", weatherData.get("temperature"));
-                        weatherInfo.put("weather_condition", weatherData.get("weather_condition"));
-                        weatherInfo.put("humidity", weatherData.get("humidity"));
-                        weatherInfo.put("windspeed", weatherData.get("windspeed"));
-
-                        // Update the display with weather info
-                        displayView.updateWeatherInfo(weatherInfo);
-
-                        // Show the new frame
-                        weatherFrame.setLocationRelativeTo(null);
-                        weatherFrame.setVisible(true);
-                    }
-                } else {
-                    System.out.println("Location not found.");
-                }
+            if (locationName == null || locationName.isEmpty()) {
+                throw new IllegalArgumentException("Nama lokasi tidak boleh kosong.");
             }
-        });
 
-        check.getBack().addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFrame currentFrame = (JFrame) check.getTopLevelAncestor();
-                DisplayModel model = new DisplayModel();
-                DisplayView view = new DisplayView(model);
-                new DisplayController(model, view);
+            JSONArray locationData = FetchApi.getLocationData(locationName);
 
-                JFrame frame = new JFrame("Weather Monitoring App");
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setSize(900, 700);
-                frame.add(view);
-                frame.setLocationRelativeTo(null);
-                frame.setVisible(true);
-
-                if (currentFrame != null) {
-                    currentFrame.dispose();
-                }
+            if (locationData == null || locationData.isEmpty()) {
+                throw new LocationNotFoundException("Soriye lokasi gada");
             }
-        });
+
+            JSONObject location = (JSONObject) locationData.get(0);
+            String cityName = (String) location.get("name");
+            double latitude = (double) location.get("latitude");
+            double longitude = (double) location.get("longitude");
+
+            JSONObject weatherData = FetchApi.getWeatherData(cityName);
+
+            if (weatherData == null) {
+                throw new Exception("Data cuaca tidak ditemukan untuk lokasi ini.");
+            }
+
+            displayWeatherDetails(cityName, latitude, longitude, weatherData);
+        } catch (LocationNotFoundException ex) {
+            JOptionPane.showMessageDialog(
+                    check,
+                    ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(
+                    check,
+                    ex.getMessage(),
+                    "Invalid Input",
+                    JOptionPane.WARNING_MESSAGE
+            );
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void displayWeatherDetails(String cityName, double latitude, double longitude, JSONObject weatherData) {
+        WeatherDisplayView displayView = new WeatherDisplayView(new DisplayModel());
+
+        JFrame weatherFrame = new JFrame("Weather Details");
+        weatherFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        weatherFrame.setSize(900, 700);
+        weatherFrame.add(displayView);
+        weatherFrame.setLocationRelativeTo(null);
+        weatherFrame.setVisible(true);
+
+        JSONObject weatherInfo = new JSONObject();
+        weatherInfo.put("location_name", cityName);
+        weatherInfo.put("latitude", latitude);
+        weatherInfo.put("longitude", longitude);
+        weatherInfo.put("temperature", weatherData.get("temperature"));
+        weatherInfo.put("weather_condition", weatherData.get("weather_condition"));
+        weatherInfo.put("humidity", weatherData.get("humidity"));
+        weatherInfo.put("windspeed", weatherData.get("windspeed"));
+
+        displayView.updateWeatherInfo(weatherInfo);
+
+        WeatherDisplayView.getTambahButton().addActionListener(e -> handleTambahButton(cityName, weatherData, latitude, longitude));
+    }
+
+    private void handleTambahButton(String cityName, JSONObject weatherData, double latitude, double longitude) {
+        String currentTime = java.time.LocalTime.now().toString();
+
+        WeatherMonitoring.MonitoringPanel.addDataToTable(
+                cityName,
+                weatherData.get("weather_condition").toString(),
+                (double) weatherData.get("temperature"),
+                currentTime
+        );
+
+        String weatherDetails = String.format(
+                "Location: %s\nLatitude: %.4f\nLongitude: %.4f\nTemperature: %.2f°C\nWeather Condition: %s\nHumidity: %d%%\nWindspeed: %.2f m/s",
+                cityName,
+                latitude,
+                longitude,
+                weatherData.get("temperature"),
+                weatherData.get("weather_condition"),
+                weatherData.get("humidity"),
+                weatherData.get("windspeed")
+        );
+
+        JOptionPane.showMessageDialog(
+                null,
+                weatherDetails,
+                "Weather Information Added",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+    }
+
+    private void handleBack() {
+        JFrame currentFrame = (JFrame) check.getTopLevelAncestor();
+        DisplayModel model = new DisplayModel();
+        DisplayView view = new DisplayView(model);
+        new DisplayController(model, view);
+
+        JFrame frame = new JFrame("Weather Monitoring App");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(900, 700);
+        frame.add(view);
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+
+        if (currentFrame != null) {
+            currentFrame.dispose();
+        }
     }
 }

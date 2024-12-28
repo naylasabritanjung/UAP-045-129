@@ -1,3 +1,5 @@
+import org.json.simple.JSONObject;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -18,8 +20,6 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
-import org.json.simple.JSONObject;
-
 public class WeatherDisplayView extends JPanel {
     private final DisplayModel model;
     private JLabel weatherInfoLabel;
@@ -31,11 +31,10 @@ public class WeatherDisplayView extends JPanel {
     private JLabel icon;
     private JLabel humidityIcon;
     private JLabel windspeedIcon;
-    private JButton tambah;
+    private static JButton tambah;
     private JButton back;
 
     public WeatherDisplayView(DisplayModel model) {
-
         this.model = model;
         this.weatherInfoLabel = new JLabel("", SwingConstants.CENTER);
         this.icon = new JLabel("");
@@ -63,17 +62,17 @@ public class WeatherDisplayView extends JPanel {
         back.setFont(new Font("Verdana", Font.BOLD, 15));
         back.setContentAreaFilled(false);
         back.setFocusable(false);
-           
+
         back.addActionListener(e -> {
             // Menutup jendela saat ini
             SwingUtilities.getWindowAncestor(this).dispose();
-        
+
             // Membuat dan menampilkan DisplayView
             DisplayView displayView = new DisplayView(new DisplayModel());
             displayView.openNewPanel(new DisplayModel());
             displayView.setVisible(true);
-        });        
-        
+        });
+
         add(back);
 
         locationLabel.setFont(new Font("Verdana", Font.BOLD, 30));
@@ -105,6 +104,10 @@ public class WeatherDisplayView extends JPanel {
             repaint();
         });
         timer.start();
+    }
+
+    public static JButton getTambahButton() {
+        return tambah;
     }
 
     @Override
