@@ -34,7 +34,7 @@ public class WeatherMonitoring extends JFrame {
         private int textIndex = 0;
         private JButton backButton;
         private static JTable weatherTable;
-        public static DefaultTableModel tableModel = new DefaultTableModel(new Object[]{"Location", "Weather Condition", "Temperature", "Time"}, 0);
+        public static DefaultTableModel tableModel = new DefaultTableModel(new Object[]{"No", "Location", "Weather Condition", "Temperature", "Time"}, 0);
 
         public MonitoringPanel() {
             setLayout(null);
@@ -79,7 +79,7 @@ public class WeatherMonitoring extends JFrame {
 
             // Tabel cuaca
             String[] columnNames = {"No", "Nama Lokasi", "Temperatur", "Cuaca", "Waktu"};
-            DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0); // Inisialisasi model tabel
+            // Gunakan tableModel yang sudah dideklarasikan
             weatherTable = new JTable(tableModel); // Inisialisasi tabel dengan model
 
 // Pengaturan tampilan tabel
