@@ -1,4 +1,3 @@
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -19,12 +18,24 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
+/**
+ * Kelas ini berfungsi sebagai tampilan utama yang menampilkan cuaca dan beberapa tombol dengan efek grafis khusus.
+ * Menggunakan komponen-komponen grafis untuk menampilkan tampilan interaktif seperti tombol kustom dan gambar cuaca.
+ *
+ * @author Putri Nayla Sabri, Herdiana Dwi Maharani
+ * @version 1.0
+ */
 public class DisplayView extends JPanel {
 
     private DisplayModel model;
     private Image image;
     private JButton button;
 
+    /**
+     * Konstruktor untuk menampilkan tampilan dengan model cuaca dan menyiapkan komponen tampilan.
+     *
+     * @param model Model tampilan cuaca yang akan digunakan dalam tampilan ini.
+     */
     public DisplayView(DisplayModel model) {
         this.model = model;
 
@@ -73,9 +84,12 @@ public class DisplayView extends JPanel {
             }
         });
         updateButtonPosition();
-    } //end constructor
+    }
 
-    private void updateButtonPosition() {
+    /**
+     * Memperbarui posisi tombol di panel saat ukuran panel berubah.
+     */
+    public void updateButtonPosition() {
         int panelWidth = getWidth();
 
         int buttonWidth = 350;
@@ -86,11 +100,20 @@ public class DisplayView extends JPanel {
         button.setBounds(x, y, buttonWidth, buttonHeight);
     }
 
+    /**
+     * Mengambil tombol yang ada pada tampilan.
+     *
+     * @return Tombol utama pada tampilan.
+     */
     public JButton getButton() {
         return button;
     }
 
-    //frame
+    /**
+     * Membuka panel baru dengan tampilan dan tombol cuaca.
+     *
+     * @param model Model cuaca yang akan digunakan pada tampilan.
+     */
     public void openNewPanel(DisplayModel model) {
         JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
         if (frame == null) return;
@@ -111,7 +134,7 @@ public class DisplayView extends JPanel {
                 teksTengah(g2d, displayedText.toString(), 330, Color.white, 15);
             }
 
-            //Timer untuk teks frame 2
+            // Timer untuk teks frame 2
             {
                 typingTimer = new Timer(40, e -> {
                     if (displayedText.length() < fullText.length()) {
@@ -120,23 +143,19 @@ public class DisplayView extends JPanel {
                     } else {
                         typingTimer.stop();
                         repaint();
-
                     }
                 });
                 typingTimer.start();
             }
         };
 
-
-        newPanel.setLayout(null); //kustom posisi
-
+        newPanel.setLayout(null); // Kustom posisi
 
         JButton button1 = createCustomButton("Cek Cuaca", new ImageIcon("img/awan2.png"));
         button1.setBounds(230, 400, 200, 60);
 
         JButton button2 = createCustomButton("Monitoring", new ImageIcon("img/eye icon_4184857.png"));
         button2.setBounds(450, 400, 200, 60);
-
 
         button1.addActionListener(e -> {
             WeatherCheckView.createAndShowFrame(model); // Menampilkan WeatherCheckView
@@ -145,7 +164,6 @@ public class DisplayView extends JPanel {
         button2.addActionListener(e -> {
             new WeatherMonitoring().setVisible(true);
         });
-
 
         newPanel.add(button1);
         newPanel.add(button2);
@@ -156,10 +174,17 @@ public class DisplayView extends JPanel {
         frame.repaint();
     }
 
-    private JButton createCustomButton(String text, ImageIcon icon) {
+    /**
+     * Membuat tombol kustom dengan gambar dan teks.
+     *
+     * @param text Teks yang akan ditampilkan pada tombol.
+     * @param icon Ikon gambar yang akan digunakan pada tombol.
+     * @return Tombol yang telah disesuaikan.
+     */
+    public JButton createCustomButton(String text, ImageIcon icon) {
 
         Image image = icon.getImage();
-        Image scaledImage = image.getScaledInstance(50, 50, Image.SCALE_SMOOTH); // ukuran gambar 
+        Image scaledImage = image.getScaledInstance(50, 50, Image.SCALE_SMOOTH); // Ukuran gambar
         icon = new ImageIcon(scaledImage);
 
         JButton button = new JButton(text) {
@@ -168,10 +193,9 @@ public class DisplayView extends JPanel {
                 Graphics2D g2 = (Graphics2D) g;
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-
                 GradientPaint gradient = new GradientPaint(0, 0, Color.YELLOW, getWidth(), 0, Color.ORANGE);
                 g2.setPaint(gradient);
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30); // bagian Oval 
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30); // Bagian Oval
 
                 super.paintComponent(g);
             }
@@ -190,6 +214,11 @@ public class DisplayView extends JPanel {
         return button;
     }
 
+    /**
+     * Menggambar elemen tampilan cuaca dan efek gradasi latar belakang.
+     *
+     * @param g Grafik untuk menggambar pada panel.
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -201,7 +230,12 @@ public class DisplayView extends JPanel {
         teksTengah(g2d, "Monitoring", pccGambar + 65, Color.white, 36);
     }
 
-    private void frameGradasi(Graphics2D g2d) {
+    /**
+     * Menggambar efek gradasi pada latar belakang.
+     *
+     * @param g2d Grafik yang digunakan untuk menggambar.
+     */
+    public void frameGradasi(Graphics2D g2d) {
         int width = getWidth();
         int height = getHeight();
         float angle = model.getAngle();
@@ -216,7 +250,15 @@ public class DisplayView extends JPanel {
         g2d.fillRect(0, 0, width, height);
     }
 
-    private int ikonCuaca(Graphics2D g2d, Image image, int topY) {
+    /**
+     * Menggambar ikon cuaca pada tampilan.
+     *
+     * @param g2d Grafik yang digunakan untuk menggambar.
+     * @param image Gambar ikon cuaca yang akan ditampilkan.
+     * @param topY Posisi vertikal dari gambar.
+     * @return Posisi vertikal setelah gambar digambar.
+     */
+    public int ikonCuaca(Graphics2D g2d, Image image, int topY) {
         int lebar = getWidth();
         int lebarGambar = image.getWidth(null);
         int tinggiGambar = image.getHeight(null);
@@ -231,6 +273,16 @@ public class DisplayView extends JPanel {
         return y + newHeight;
     }
 
+    /**
+     * Menggambar teks di tengah panel dengan font dan warna yang ditentukan.
+     *
+     * @param g2d Grafik yang digunakan untuk menggambar.
+     * @param text Teks yang akan ditampilkan.
+     * @param topY Posisi vertikal untuk menggambar teks.
+     * @param color Warna teks yang akan digunakan.
+     * @param fontSize Ukuran font yang akan digunakan.
+     * @return Posisi vertikal setelah teks digambar.
+     */
     private int teksTengah(Graphics2D g2d, String text, int topY, Color color, int fontSize) {
         g2d.setColor(color);
         g2d.setFont(new Font("Verdana", Font.BOLD, fontSize));

@@ -20,6 +20,13 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
+/**
+ * Kelas ini merupakan representasi tampilan antarmuka pengguna untuk menampilkan informasi cuaca,
+ * termasuk lokasi, suhu, kondisi cuaca, kelembaban, dan kecepatan angin. Kelas ini juga menangani
+ * pembaruan data cuaca dan tampilan ikon cuaca sesuai dengan kondisi cuaca yang diterima.
+ *
+ * @author Putri Nayla Sabri dan Herdiana Dwi Maharani
+ */
 public class WeatherDisplayView extends JPanel {
     private final DisplayModel model;
     private JLabel weatherInfoLabel;
@@ -34,6 +41,11 @@ public class WeatherDisplayView extends JPanel {
     private static JButton tambah;
     private JButton back;
 
+    /**
+     * Konstruktor untuk membuat tampilan cuaca dengan model yang diberikan.
+     *
+     * @param model Model yang digunakan untuk pembaruan data cuaca dan tampilan.
+     */
     public WeatherDisplayView(DisplayModel model) {
         this.model = model;
         this.weatherInfoLabel = new JLabel("", SwingConstants.CENTER);
@@ -47,8 +59,8 @@ public class WeatherDisplayView extends JPanel {
         this.windspeedIcon = new JLabel(new ImageIcon("img/windspeed.png"));
         setLayout(null);
 
+        // Mengatur posisi dan properti elemen-elemen UI
         icon.setBounds(290, 120, 300, 300);
-
         tambah = new JButton("Tambah");
         tambah.setBounds(720, 580, 130, 40);
         tambah.setFont(new Font("Verdana", Font.BOLD, 15));
@@ -73,8 +85,10 @@ public class WeatherDisplayView extends JPanel {
             displayView.setVisible(true);
         });
 
+
         add(back);
 
+        // Mengatur font dan warna elemen-elemen UI
         locationLabel.setFont(new Font("Verdana", Font.BOLD, 30));
         locationLabel.setForeground(Color.orange);
 
@@ -106,10 +120,20 @@ public class WeatherDisplayView extends JPanel {
         timer.start();
     }
 
+    /**
+     * Mengembalikan tombol "Tambah" yang dapat digunakan untuk menambahkan elemen ke tampilan.
+     *
+     * @return Tombol "Tambah".
+     */
     public static JButton getTambahButton() {
         return tambah;
     }
 
+    /**
+     * Menggambar batas panel dengan menggunakan efek gradien.
+     *
+     * @param g Grafik yang digunakan untuk menggambar panel.
+     */
     @Override
     protected void paintBorder(Graphics g) {
         super.paintBorder(g);
@@ -117,6 +141,7 @@ public class WeatherDisplayView extends JPanel {
         GradientPaint gradient = new GradientPaint(0, 0, Color.ORANGE, 1, getHeight(), Color.ORANGE.brighter());
         g2d.setPaint(gradient);
 
+        // Menggambar tombol dengan sudut yang melengkung
         RoundRectangle2D.Float roundButtonCari = new RoundRectangle2D.Float(tambah.getX(), tambah.getY(), tambah.getWidth(), tambah.getHeight(), 20, 20);
         g2d.fill(roundButtonCari);
 
@@ -124,6 +149,11 @@ public class WeatherDisplayView extends JPanel {
         g2d.fill(roundButtonBack);
     }
 
+    /**
+     * Menggambar komponen panel dengan menggunakan efek gradien pada latar belakang.
+     *
+     * @param g Grafik yang digunakan untuk menggambar komponen.
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -131,11 +161,17 @@ public class WeatherDisplayView extends JPanel {
         frameGradasi(g2d);
     }
 
+    /**
+     * Membuat efek gradien pada latar belakang panel.
+     *
+     * @param g2d Grafik 2D yang digunakan untuk menggambar efek gradien.
+     */
     private void frameGradasi(Graphics2D g2d) {
         int width = getWidth();
         int height = getHeight();
         float angle = model.getAngle();
 
+        // Menghitung posisi titik untuk gradien
         float x1 = (float) (Math.cos(angle) * width / 2 + width / 2);
         float y1 = (float) (Math.sin(angle) * height / 2 + height / 2);
         float x2 = (float) (Math.cos(angle + Math.PI) * width / 2 + width / 2);
@@ -147,29 +183,33 @@ public class WeatherDisplayView extends JPanel {
 
         locationLabel.setBounds((width - locationLabel.getPreferredSize().width) / 2, 40, locationLabel.getPreferredSize().width, 100);
         temperatureLabel.setBounds((width - temperatureLabel.getPreferredSize().width) / 2, 320, temperatureLabel.getPreferredSize().width, 200);
-        conditionLabel.setBounds((width - conditionLabel.getPreferredSize().width) / 2, 440, conditionLabel.getPreferredSize().width, 50); // Tempatkan conditionLabel di bawah temperatureLabel
-        humidityLabel.setBounds((width / 2 - humidityLabel.getPreferredSize().width) / 2, 500, humidityLabel.getPreferredSize().width, 50); // Tempatkan humidityLabel di bawah conditionLabel
-        windspeedLabel.setBounds((width / 2 + 600) / 2, 500, windspeedLabel.getPreferredSize().width, 50); // Tempatkan windspeedLabel di sebelah humidityLabel
+        conditionLabel.setBounds((width - conditionLabel.getPreferredSize().width) / 2, 440, conditionLabel.getPreferredSize().width, 50);
+        humidityLabel.setBounds((width / 2 - humidityLabel.getPreferredSize().width) / 2, 500, humidityLabel.getPreferredSize().width, 50);
+        windspeedLabel.setBounds((width / 2 + 600) / 2, 500, windspeedLabel.getPreferredSize().width, 50);
 
-        // Set positions for the icons
-        humidityIcon.setBounds(humidityLabel.getX() - 50, humidityLabel.getY() - 20, 30, 30); // Icon to the left of humidity
-        windspeedIcon.setBounds(windspeedLabel.getX() - 50, windspeedLabel.getY() - 20, 30, 30); // Icon to the left of windspeed
+        // Menempatkan ikon kelembaban dan kecepatan angin
+        humidityIcon.setBounds(humidityLabel.getX() - 50, humidityLabel.getY() - 20, 30, 30);
+        windspeedIcon.setBounds(windspeedLabel.getX() - 50, windspeedLabel.getY() - 20, 30, 30);
     }
 
+    /**
+     * Memperbarui informasi cuaca pada tampilan berdasarkan data cuaca yang diterima.
+     *
+     * @param weatherData Data cuaca dalam format JSON.
+     */
     public void updateWeatherInfo(JSONObject weatherData) {
         if (weatherData != null) {
-            // Extract weather data
-            String location = (String) weatherData.get("location_name"); // Nama lokasi
+            String location = (String) weatherData.get("location_name");
             double temperature = (double) weatherData.get("temperature");
             String weatherCondition = (String) weatherData.get("weather_condition");
             long humidity = (long) weatherData.get("humidity");
             double windspeed = (double) weatherData.get("windspeed");
 
-            // Set the weather icon
+            // Menampilkan ikon cuaca berdasarkan kondisi
             ImageIcon resizedIcon = getWeatherIcon(weatherCondition);
             icon.setIcon(resizedIcon);
 
-            // Update the weather info label with formatted text
+            // Memperbarui label dengan informasi cuaca
             weatherInfoLabel.setText(String.format(
                     "<html></h2>Temperature: %.2f°C<br>Condition: %s<br>Humidity: %d%%<br>Windspeed: %.2f m/s</html>",
                     temperature, weatherCondition, humidity, windspeed
@@ -177,15 +217,20 @@ public class WeatherDisplayView extends JPanel {
 
             locationLabel.setText(String.format(location));
             temperatureLabel.setText(String.format("%.1f°C", temperature));
-            conditionLabel.setText(String.format("%s", weatherCondition)); // Update the conditionLabel with weather condition
-            humidityLabel.setText(String.format("%d%%", humidity)); // Update the humidityLabel
-            windspeedLabel.setText(String.format("%.2f m/s", windspeed)); // Update the windspeedLabel
+            conditionLabel.setText(String.format("%s", weatherCondition));
+            humidityLabel.setText(String.format("%d%%", humidity));
+            windspeedLabel.setText(String.format("%.2f m/s", windspeed));
 
             repaint();
         }
     }
 
-    // Function to return the corresponding icon based on weather condition
+    /**
+     * Mengembalikan ikon yang sesuai dengan kondisi cuaca yang diberikan.
+     *
+     * @param weatherCondition Kondisi cuaca.
+     * @return Ikon cuaca yang sesuai.
+     */
     private ImageIcon getWeatherIcon(String weatherCondition) {
         ImageIcon icon = null;
 
@@ -209,10 +254,15 @@ public class WeatherDisplayView extends JPanel {
         int iconWidth = 300;
         int iconHeight = 300;
         Image img = icon.getImage();
-        Image scaledImg = img.getScaledInstance(iconWidth, iconHeight, Image.SCALE_SMOOTH); // Resize the image
+        Image scaledImg = img.getScaledInstance(iconWidth, iconHeight, Image.SCALE_SMOOTH);
         return new ImageIcon(scaledImg);
     }
 
+    /**
+     * Membuat dan menampilkan jendela utama aplikasi cuaca.
+     *
+     * @param model Model yang digunakan untuk tampilan cuaca.
+     */
     public static void createAndShowFrame(DisplayModel model) {
         JFrame frame = new JFrame("Weather Check");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

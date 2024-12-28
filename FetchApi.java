@@ -9,9 +9,31 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+/**
+ * Kelas ini digunakan untuk mengambil data cuaca dari API menggunakan geocoding
+ * dan API cuaca yang disediakan oleh Open-Meteo. Kelas ini menyediakan metode
+ * untuk mengambil data lokasi berdasarkan nama lokasi dan untuk mengambil data
+ * cuaca terkait dengan lokasi tersebut.
+ *
+ * @version 1.0
+ * @author Putri Nayla Sabri dan Herdiana Dwi Maharani
+ */
 public class FetchApi {
+
+    /**
+     * Mengambil data cuaca untuk lokasi yang diberikan.
+     *
+     * <p>Metode ini pertama-tama mencari data lokasi berdasarkan nama lokasi,
+     * kemudian menggunakan koordinat geografis (latitude, longitude) untuk
+     * mendapatkan data cuaca dari API Open-Meteo. Data cuaca yang diperoleh
+     * mencakup suhu, kondisi cuaca, kelembapan relatif, dan kecepatan angin.
+     * Data ini dikembalikan dalam bentuk objek JSON.</p>
+     *
+     * @param locationName Nama lokasi yang ingin dicari data cuacanya.
+     * @return Objek JSON yang berisi data cuaca (suhu, kondisi cuaca, kelembapan, kecepatan angin),
+     *         atau null jika ada kesalahan atau data tidak ditemukan.
+     */
     public static JSONObject getWeatherData(String locationName) {
-        // get location coordinates using the geolocation api
         JSONArray locationData = getLocationData(locationName);
 
         if (locationData == null || locationData.isEmpty()) {
@@ -19,7 +41,6 @@ public class FetchApi {
             return null;
         }
 
-        // Extract latitude and longitude data
         JSONObject location = (JSONObject) locationData.get(0);
         if (location == null) {
             System.out.println("Error: Unable to extract location data.");
@@ -29,62 +50,44 @@ public class FetchApi {
         double latitude = (double) location.get("latitude");
         double longitude = (double) location.get("longitude");
 
-        // build api request url with location coordinates
         String urlString = "https://api.open-meteo.com/v1/forecast?" +
-                "latitude="+latitude+"&longitude="+longitude+"&hourly=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=America%2FSao_Paulo";
+                "latitude=" + latitude + "&longitude=" + longitude + "&hourly=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=America%2FSao_Paulo";
 
         try {
-            // call api and get response
             HttpURLConnection conn = fetchApiResponse(urlString);
 
-            // check for response status
-            // 200 - means that the connection was a success
             if (conn.getResponseCode() != 200) {
-                System.out.println("Errour: could not connect to api");;
+                System.out.println("Error: Could not connect to API");
                 return null;
             }
 
-            // store resulting json data
             StringBuilder resultJson = new StringBuilder();
             Scanner scanner = new Scanner(conn.getInputStream());
-            while(scanner.hasNext()) {
-                // read and store into the string builder
+            while (scanner.hasNext()) {
                 resultJson.append(scanner.nextLine());
             }
 
-            // close scanner
             scanner.close();
-            // close url connection
             conn.disconnect();
-            // parse through our data
             JSONParser parser = new JSONParser();
             JSONObject resultJsonObj = (JSONObject) parser.parse(String.valueOf(resultJson));
 
-            // retrieve hourly data
             JSONObject hourly = (JSONObject) resultJsonObj.get("hourly");
-
-            // we want to get the current hour's data
-            // so, we need to get the index of our current hour
             JSONArray time = (JSONArray) hourly.get("time");
             int index = findIndexOfCurrentTime(time);
 
-            // get temperature
             JSONArray temperatureData = (JSONArray) hourly.get("temperature_2m");
             double temperature = (double) temperatureData.get(index);
 
-            // get weather code
             JSONArray weatherCode = (JSONArray) hourly.get("weather_code");
             String weatherCondition = convertWeatherCode((long) weatherCode.get(index), temperature);
 
-            // get humidity
             JSONArray relativeHumidity = (JSONArray) hourly.get("relative_humidity_2m");
             long humidity = (long) relativeHumidity.get(index);
 
-            // get windspeed
             JSONArray windspeedData = (JSONArray) hourly.get("wind_speed_10m");
             double windspeed = (double) windspeedData.get(index);
 
-            // build the weather json data object that we are going to access in our frontend
             JSONObject weatherData = new JSONObject();
             weatherData.put("temperature", temperature);
             weatherData.put("weather_condition", weatherCondition);
@@ -93,90 +96,91 @@ public class FetchApi {
 
             return weatherData;
 
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         return null;
     }
 
-    // retrieves geographic coordinates for given location name
+    /**
+     * Mengambil data lokasi berdasarkan nama lokasi.
+     *
+     * <p>Metode ini menghubungi API geocoding untuk mendapatkan data lokasi
+     * seperti koordinat geografis (latitude dan longitude) berdasarkan nama
+     * lokasi yang diberikan.</p>
+     *
+     * @param locationName Nama lokasi yang ingin dicari.
+     * @return Array JSON yang berisi data lokasi yang ditemukan, atau null jika tidak ada data.
+     */
     public static JSONArray getLocationData(String locationName) {
-        // replace any whitespace in location name to + to adhere to api's request format
         locationName = locationName.replaceAll(" ", "+");
 
-        // build api url with location parameter
         String urlString = "https://geocoding-api.open-meteo.com/v1/search?name=" +
                 locationName + "&count=10&language=en&format=json";
 
         try {
-            // call api and get a response
             HttpURLConnection conn = fetchApiResponse(urlString);
 
-            // check response status
-            // 200 means successful connection
-            if(conn.getResponseCode() != 200) {
+            if (conn.getResponseCode() != 200) {
                 System.out.println("Error: Could not connect to API");
                 return null;
-            }else{
-                // store the api results
+            } else {
                 StringBuilder resultJson = new StringBuilder();
                 Scanner scanner = new Scanner(conn.getInputStream());
 
-                // read and store the result json data into our string builder
                 while (scanner.hasNext()) {
                     resultJson.append(scanner.nextLine());
                 }
 
-                // close scanner
                 scanner.close();
-
-                // close url connection
                 conn.disconnect();
 
-                // parse the json string into a json object
                 JSONParser parser = new JSONParser();
                 JSONObject resultsJsonObj = (JSONObject) parser.parse(String.valueOf(resultJson));
 
-                // get the list of location data the api generated from the location name
                 JSONArray locationData = (JSONArray) resultsJsonObj.get("results");
                 return locationData;
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         return null;
     }
 
-    private  static HttpURLConnection fetchApiResponse(String urlString) {
+    /**
+     * Menghubungi API dan mengambil respons dalam bentuk HttpURLConnection.
+     *
+     * @param urlString URL dari API yang akan diakses.
+     * @return HttpURLConnection yang mewakili koneksi ke API.
+     */
+    static HttpURLConnection fetchApiResponse(String urlString) {
         try {
-            // attempt to create connection
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
-            // set request method to get
             conn.setRequestMethod("GET");
-
-            // connect to our api
             conn.connect();
             return conn;
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
-
-        // could not make connection
         return null;
     }
 
-    private static int findIndexOfCurrentTime(JSONArray timeList) {
+    /**
+     * Menemukan indeks dari waktu saat ini dalam daftar waktu yang diberikan.
+     *
+     * @param timeList Daftar waktu yang diterima dari API cuaca.
+     * @return Indeks dari waktu saat ini dalam daftar waktu.
+     */
+    static int findIndexOfCurrentTime(JSONArray timeList) {
         String currentTime = getCurrentTime();
 
-        // iterate through the time list and see which one matches our current time
         for (int i = 0; i < timeList.size(); i++) {
             String time = (String) timeList.get(i);
             if (time.equalsIgnoreCase(currentTime)) {
-                // return the index
                 return i;
             }
         }
@@ -184,28 +188,30 @@ public class FetchApi {
         return 0;
     }
 
+    /**
+     * Mengambil waktu saat ini dalam format yang sesuai dengan yang dibutuhkan API.
+     *
+     * @return Waktu saat ini dalam format "yyyy-MM-dd'T'HH:00".
+     */
     public static String getCurrentTime() {
-        // get current date and time
         LocalDateTime currentDateTime = LocalDateTime.now();
-
-        // format date to be 2023-09-02T00:00 (this is how it is read in the api)
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH':00'");
-
-        // format and print the current date and time
-        String formattedDateTime = currentDateTime.format(formatter);
-
-        return formattedDateTime;
+        return currentDateTime.format(formatter);
     }
 
-    // Convert the weather code to something readable, also adjusting for temperatures below freezing
-    private static String convertWeatherCode(long weatherCode, double temperature) {
+    /**
+     * Mengonversi kode cuaca menjadi kondisi cuaca yang dapat dibaca.
+     *
+     * @param weatherCode Kode cuaca dari API.
+     * @param temperature Suhu saat ini.
+     * @return Kondisi cuaca yang dapat dibaca (seperti "Clear", "Cloudy", "Rain", "Snow").
+     */
+    static String convertWeatherCode(long weatherCode, double temperature) {
         String weatherCondition = "";
 
-        // If the temperature is below 0°C, assume snow
         if (temperature <= 0) {
             weatherCondition = "Snow";
         } else {
-            // Process weather codes for above freezing temperatures
             if (weatherCode == 0L) {
                 weatherCondition = "Clear";
             } else if (weatherCode > 0L && weatherCode <= 3L) {

@@ -13,12 +13,30 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
+/**
+ * Kelas ini merupakan tampilan dari aplikasi pengecekan cuaca yang menampilkan antarmuka pengguna.
+ * Kelas ini berfungsi untuk menampilkan komponen seperti kolom input teks untuk nama lokasi,
+ * tombol untuk mencari cuaca berdasarkan lokasi, serta tombol untuk kembali ke tampilan utama.
+ *
+ * Selain itu, kelas ini juga menangani animasi gradasi latar belakang dan pemrosesan event terkait
+ * dengan tombol yang ada.
+ *
+ * @author Putri Nayla Sabri dan Herdiana Dwi Maharani
+ * @version 1.0
+ */
 public class WeatherCheckView extends JPanel {
+
     private final DisplayModel model;
     private final JTextField textField;
     private JButton cari;
     private JButton back;
 
+    /**
+     * Konstruktor untuk menginisialisasi tampilan cuaca.
+     * Mengatur komponen-komponen tampilan seperti kolom input, tombol cari, dan tombol kembali.
+     *
+     * @param model Model yang terkait dengan tampilan ini.
+     */
     public WeatherCheckView(DisplayModel model) {
         this.model = model;
         this.textField = new JTextField(20);
@@ -41,20 +59,20 @@ public class WeatherCheckView extends JPanel {
         back.setFont(new Font("Verdana", Font.BOLD, 15));
         back.setContentAreaFilled(false);
         back.setFocusable(false);
-           
+
         back.addActionListener(e -> {
             // Menutup jendela saat ini
             SwingUtilities.getWindowAncestor(this).dispose();
-        
+
             // Membuat dan menampilkan DisplayView
             DisplayView displayView = new DisplayView(new DisplayModel());
             displayView.openNewPanel(new DisplayModel());
             displayView.setVisible(true);
-        });        
-        
+        });
+
         add(back);
 
-
+        // Timer untuk animasi gradasi
         Timer timer = new Timer(50, e -> {
             model.updateAngle(0.03f);
             repaint();
@@ -62,18 +80,38 @@ public class WeatherCheckView extends JPanel {
         timer.start();
     }
 
+    /**
+     * Mengembalikan kolom input teks untuk nama lokasi.
+     *
+     * @return Kolom input teks (JTextField).
+     */
     public JTextField getTextField() {
         return textField;
     }
 
+    /**
+     * Mengembalikan tombol untuk mencari cuaca.
+     *
+     * @return Tombol cari (JButton).
+     */
     public JButton getCari() {
         return cari;
     }
 
+    /**
+     * Mengembalikan tombol untuk kembali ke tampilan utama.
+     *
+     * @return Tombol kembali (JButton).
+     */
     public JButton getBack() {
         return back;
     }
 
+    /**
+     * Menggambar komponen-komponen tampilan cuaca, termasuk gradasi latar belakang dan teks.
+     *
+     * @param g Objek grafis untuk menggambar komponen.
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -89,6 +127,11 @@ public class WeatherCheckView extends JPanel {
         g2d.fill(roundTextField);
     }
 
+    /**
+     * Menggambar latar belakang dengan gradasi berdasarkan sudut yang dihitung dari model.
+     *
+     * @param g2d Objek Graphics2D untuk menggambar.
+     */
     private void frameGradasi(Graphics2D g2d) {
         int width = getWidth();
         int height = getHeight();
@@ -104,6 +147,16 @@ public class WeatherCheckView extends JPanel {
         g2d.fillRect(0, 0, width, height);
     }
 
+    /**
+     * Menampilkan teks secara horizontal di tengah panel dengan posisi Y yang ditentukan.
+     *
+     * @param g2d Objek Graphics2D untuk menggambar.
+     * @param text Teks yang akan ditampilkan.
+     * @param topY Posisi Y awal dari teks.
+     * @param color Warna teks.
+     * @param fontSize Ukuran font teks.
+     * @return Posisi Y setelah teks digambar.
+     */
     private int teksTengah(Graphics2D g2d, String text, int topY, Color color, int fontSize) {
         g2d.setColor(color);
         g2d.setFont(new Font("Verdana", Font.BOLD, fontSize));
@@ -119,6 +172,11 @@ public class WeatherCheckView extends JPanel {
         return y;
     }
 
+    /**
+     * Menggambar border dengan gradasi warna untuk tombol cari dan kembali.
+     *
+     * @param g Objek grafis untuk menggambar border.
+     */
     @Override
     protected void paintBorder(Graphics g) {
         super.paintBorder(g);
@@ -133,6 +191,11 @@ public class WeatherCheckView extends JPanel {
         g2d.fill(roundButtonBack);
     }
 
+    /**
+     * Membuat dan menampilkan frame utama dari aplikasi pengecekan cuaca.
+     *
+     * @param model Model tampilan yang digunakan.
+     */
     public static void createAndShowFrame(DisplayModel model) {
         JFrame frame = new JFrame("Weather Check");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
